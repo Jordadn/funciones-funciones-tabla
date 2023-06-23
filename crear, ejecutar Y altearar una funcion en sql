@@ -1,0 +1,152 @@
+then=entonces
+else=sino
+concat= concatebar/unir
+select*from CCOD_COA =seleccionar  CCOD_COA
+01=FACTURA
+03=BOLETA
+  ejemplo1
+  
+
+
+
+create function RealizarSuma (@numero1 as int,@numero2 as int)
+returns int
+begin
+declare @suma int
+set @suma=@numero1+@numero2
+return @suma
+end
+
+ASI SE EJECUTA UNA FUNCION// select//
+
+select dbo.RealizarSuma(5,6) el numero es opcional 
+
+
+ejemplo2
+GENERAR UNA FUNCION QUE DEVUELVE FECHA DE NACIMIENTO
+//DATEDIFF// HALLAR LA DIFERENCIA ENTRE DOS FECHAS 
+ENTRE PARENTESIS ESPECIFICAS (MES/AÑOS,@fechanac,getdate())
+
+
+create function GetAnios (@FechaNac as datetime)
+returns int
+begin
+declare @Edad int
+set @fechaNac=DATEDIFF(year,@fechanac,getdate())
+return @edad
+end
+
+
+EJEMPLO3 
+//FECHA EXACTA MULTIPLICADO POR EL AÑO 365 DIAS //
+
+
+alter function GetAnios (@fechaNac as datetime)
+returns int
+begin
+declare @Edad int
+set @Edad=(DATEDIFF(day,@fechanac,getdate())/365)
+return @edad
+end
+
+select dbo.GetAnios('19990927')
+
+EJEMPL4
+//CREAR UNA FUNCCION QUE ARROJE EL NOMBRE DEL CLIENTE//
+
+FUNCION
+
+create function GetNombreCliente (@CardCode varchar(20))
+returns varchar
+begin
+declare @RazonSocial varchar (250)
+set @RazonSocial=(
+select case when ct_persona=21 then cnom_rsocial else
+CONCAT(cnombres,'',ca_paterno,'',ca_materno) end
+from CO_TCOA where ccod_coa=@CardCode)
+
+return @RazonSocial
+end
+
+//PROBAR LA FUNCION//
+
+
+alter function GetNombreCliente(@CardCode varchar(20))
+returns varchar (350)
+begin
+declare @RazonSocial varchar (250)
+set @RazonSocial=(
+select case when ct_persona=21 then cnom_rsocial else
+CONCAT(cnombres,'',ca_paterno,'',ca_materno) end
+from CO_TCOA where ccod_coa=@CardCode)
+
+return @RazonSocial
+end
+
+ select DBO.GetNombreCliente('00000000133')
+ select DBO.GetNombreCliente('00000000134')
+
+
+CLIIENTES CON ESOS DATOS
+ select cdoc,cdoc_serie,cdoc_nro,ddoc_fch,ccod_coa,
+ dbo.GETNOMBRECLIENTE(ccod_coa)
+ from FA_CABFACT
+
+
+//REGISTRO DE VENTAS//PRIMERO GENERAR FUNCION
+
+ create function GetRegistroVentas(@fechaini datetime,
+ @fechafinal datetime)
+ returns @Table table(
+ cod char(2),
+ cserie char(4),
+ cnumdoc char(7),
+ ddoc_fch datetime,
+ ccod_coa varchar(12)
+ )
+ begin 
+ insert into @Table
+ select cdoc,cdoc_serie,cdoc_nro,ddoc_fch,ccod_coa
+ from FA_CABFACT
+ where ddoc_fch between @fechaini and @fechafinal
+ return
+ end
+
+
+
+
+
+
+
+ create function GetRegistroVentas(@fechaini datetime,
+ @fechafinal datetime)
+ returns @Table table(
+ cod char(2),
+ cserie char(4),
+ cnumdoc char(7),
+ ddoc_fch datetime,
+ ccod_coa varchar(12)
+ )
+ begin 
+ insert into @Table
+ select cdoc,cdoc_serie,cdoc_nro,ddoc_fch,ccod_coa
+ from FA_CABFACT
+ where ddoc_fch between @fechaini and @fechafinal
+ return
+ end
+ select*from dbo.GetRegistroVentas ('20220101','20221231')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
